@@ -4,30 +4,107 @@ const mainContent = document.getElementById("mainContent");
 const enterBtn = document.getElementById("enterBtn");
 const bgMantra = document.getElementById("bgMantra");
 const musicToggle = document.getElementById("musicToggle");
-const lanternsIntro = document.getElementById("lanternsIntro");
 const petalsGlobal = document.getElementById("petalsGlobal");
-const particles = document.getElementById("particles");
-const copyHash = document.getElementById("copyHash");
-const hashText = document.getElementById("hashText");
-const toast = document.getElementById("toast");
-const rsvpForm = document.getElementById("rsvpForm");
-const thanksModal = document.getElementById("thanksModal");
-const closeModal = document.getElementById("closeModal");
 const toTop = document.getElementById("toTop");
-const modalTitle = document.getElementById("modalTitle");
-const modalMessage = document.getElementById("modalMessage");
+const langToggle = document.getElementById("langToggle");
+const ganeshaMantra = document.getElementById("ganeshaMantra");
 
-let toastTimer;
 let hasStartedMusic = false;
+let currentLang = "hi";
 const MUSIC_PREF_KEY = "musicMuted";
+const LANG_PREF_KEY = "siteLang";
+
+/* BEGIN AI-generated */
+function getNestedValue(obj, path) {
+    return path.split(".").reduce((acc, key) => (acc ? acc[key] : undefined), obj);
+}
+
+function applyLanguage(lang) {
+    if (!TRANSLATIONS[lang]) return;
+    currentLang = lang;
+
+    document.documentElement.lang = lang;
+    document.body.classList.toggle("lang-hi", lang === "hi");
+    document.body.classList.toggle("lang-en", lang === "en");
+
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.getAttribute("data-i18n");
+        const value = getNestedValue(TRANSLATIONS[lang], key);
+        if (value !== undefined) {
+            el.textContent = value;
+        }
+    });
+
+    document.querySelectorAll("[data-i18n-attr]").forEach((el) => {
+        const pairs = el.getAttribute("data-i18n-attr").split(";");
+        pairs.forEach((pair) => {
+            const [attr, key] = pair.split(":").map((s) => s.trim());
+            const value = getNestedValue(TRANSLATIONS[lang], key);
+            if (value !== undefined && attr) {
+                el.setAttribute(attr, value);
+            }
+        });
+    });
+
+    if (ganeshaMantra && typeof GANESHA_MANTRA !== "undefined") {
+        ganeshaMantra.textContent = GANESHA_MANTRA;
+    }
+
+    if (langToggle) {
+        langToggle.setAttribute("aria-checked", String(lang === "en"));
+        const hiLabel = langToggle.querySelector(".lang-toggle-hi");
+        const enLabel = langToggle.querySelector(".lang-toggle-en");
+        if (hiLabel) hiLabel.classList.toggle("is-active", lang === "hi");
+        if (enLabel) enLabel.classList.toggle("is-active", lang === "en");
+    }
+
+    updateMusicToggleLabel(bgMantra ? bgMantra.muted : false);
+
+    try {
+        localStorage.setItem(LANG_PREF_KEY, lang);
+    } catch (error) {
+        // Ignore storage failures.
+    }
+}
+
+function initLanguage() {
+    let lang = "hi";
+    try {
+        const stored = localStorage.getItem(LANG_PREF_KEY);
+        if (stored === "en" || stored === "hi") {
+            lang = stored;
+        }
+    } catch (error) {
+        lang = "hi";
+    }
+    applyLanguage(lang);
+}
+
+function toggleLanguage() {
+    applyLanguage(currentLang === "hi" ? "en" : "hi");
+}
+/* END AI-generated */
+
+function updateMusicToggleLabel(isMuted) {
+    if (!musicToggle || musicToggle.disabled) return;
+    const t = TRANSLATIONS[currentLang].music;
+    musicToggle.textContent = isMuted ? t.off : t.on;
+    musicToggle.setAttribute(
+        "aria-label",
+        isMuted ? t.unmuteLabel : t.muteLabel,
+    );
+}
 
 function setMusicUnavailable() {
     if (!musicToggle) return;
     musicToggle.disabled = true;
-    musicToggle.textContent = "Music unavailable";
+    musicToggle.textContent = TRANSLATIONS[currentLang].music.unavailable;
     musicToggle.classList.add("is-muted");
     musicToggle.setAttribute("aria-pressed", "true");
-    musicToggle.setAttribute("aria-label", "Background music unavailable");
+    musicToggle.setAttribute(
+        "aria-label",
+        TRANSLATIONS[currentLang].music.unavailableLabel,
+    );
 }
 
 function setMuted(isMuted, persist = true) {
@@ -35,14 +112,10 @@ function setMuted(isMuted, persist = true) {
         bgMantra.muted = isMuted;
     }
 
-    if (musicToggle) {
-        musicToggle.textContent = isMuted ? "Music: Off" : "Music: On";
+    if (musicToggle && !musicToggle.disabled) {
+        updateMusicToggleLabel(isMuted);
         musicToggle.classList.toggle("is-muted", isMuted);
         musicToggle.setAttribute("aria-pressed", String(isMuted));
-        musicToggle.setAttribute(
-            "aria-label",
-            isMuted ? "Unmute background music" : "Mute background music",
-        );
     }
 
     if (persist) {
@@ -87,54 +160,9 @@ function startMusicOnce() {
     }
 }
 
-function setRsvpModalContent(attendValue) {
-    if (!modalTitle || !modalMessage) return;
-
-    if (attendValue === "yes") {
-        modalTitle.textContent = "YAY!!";
-        modalMessage.textContent = "We're officially excited now.";
-        return;
-    }
-
-    modalTitle.textContent = "But...";
-    modalMessage.textContent = "there will be dessert! 🥺";
-}
-
 function on(el, eventName, handler) {
     if (!el) return;
     el.addEventListener(eventName, handler);
-}
-
-async function copyTextSafe(text) {
-    if (!text) return false;
-    try {
-        if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(text);
-            return true;
-        }
-    } catch (error) {
-        // Fall through to legacy copy path.
-    }
-
-    const area = document.createElement("textarea");
-    area.value = text;
-    area.setAttribute("readonly", "");
-    area.style.position = "fixed";
-    area.style.top = "-1000px";
-    area.style.opacity = "0";
-    document.body.appendChild(area);
-    area.focus();
-    area.select();
-
-    let copied = false;
-    try {
-        copied = document.execCommand("copy");
-    } catch (error) {
-        copied = false;
-    }
-
-    document.body.removeChild(area);
-    return copied;
 }
 
 function createFallingElements(container, className, count) {
@@ -150,62 +178,6 @@ function createFallingElements(container, className, count) {
     }
 }
 
-function createLanterns(container, count) {
-    if (!container) return;
-    for (let i = 0; i < count; i += 1) {
-        const lantern = document.createElement("span");
-        lantern.className = "lantern";
-        lantern.style.left = `${Math.random() * 100}%`;
-        lantern.style.top = `${4 + Math.random() * 86}%`;
-        lantern.style.animationDuration = `${5 + Math.random() * 4}s`;
-        lantern.style.animationDelay = `${Math.random() * -6}s`;
-        lantern.style.opacity = `${0.72 + Math.random() * 0.26}`;
-        lantern.style.transform = `scale(${0.8 + Math.random() * 0.7})`;
-        container.appendChild(lantern);
-    }
-}
-
-function updateCountdown() {
-    const target = new Date("2026-04-21T19:00:00+05:30").getTime();
-    const now = Date.now();
-    const diff = target - now;
-
-    const dayEl = document.getElementById("days");
-    const hourEl = document.getElementById("hours");
-    const minEl = document.getElementById("minutes");
-    const secEl = document.getElementById("seconds");
-
-    if (!dayEl || !hourEl || !minEl || !secEl) return;
-
-    if (diff <= 0) {
-        dayEl.textContent = "00";
-        hourEl.textContent = "00";
-        minEl.textContent = "00";
-        secEl.textContent = "00";
-        return;
-    }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-
-    dayEl.textContent = String(days).padStart(2, "0");
-    hourEl.textContent = String(hours).padStart(2, "0");
-    minEl.textContent = String(minutes).padStart(2, "0");
-    secEl.textContent = String(seconds).padStart(2, "0");
-}
-
-function showToast(message) {
-    if (!toast) return;
-    if (toastTimer) {
-        clearTimeout(toastTimer);
-    }
-    toast.innerHTML = `${message} <span aria-hidden="true">&hearts;</span>`;
-    toast.classList.add("show");
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 1400);
-}
-
 function updatePetalFallDistance() {
     if (!petalsGlobal) return;
     const fullHeight = Math.max(
@@ -218,6 +190,7 @@ function updatePetalFallDistance() {
 }
 
 function enterInvitation() {
+    if (!intro) return;
     intro.style.pointerEvents = "none";
 
     const complete = () => {
@@ -231,7 +204,7 @@ function enterInvitation() {
             gsap.timeline()
                 .fromTo(
                     "#mainContent",
-                    { opacity: 0, filter: "blur(10px)", scale: 0.985 },
+                    { opacity: 0, filter: "blur(8px)", scale: 0.99 },
                     {
                         opacity: 1,
                         filter: "blur(0px)",
@@ -241,11 +214,11 @@ function enterInvitation() {
                     },
                 )
                 .from(
-                    ["#coverArt", "#home .container", "#countdown .container"],
+                    ["#welcome .container", "#mangalBela .mangal-bela-card"],
                     {
                         y: 24,
                         opacity: 0,
-                        duration: 1.05,
+                        duration: 1,
                         stagger: 0.12,
                         ease: "power3.out",
                     },
@@ -258,10 +231,10 @@ function enterInvitation() {
     };
 
     if (window.gsap) {
-        gsap.to(".intro", {
-            scale: 1.03,
+        gsap.to(".envelope-intro", {
             opacity: 0,
-            duration: 0.95,
+            scale: 1.02,
+            duration: 0.85,
             ease: "power2.out",
             onComplete: complete,
         });
@@ -280,21 +253,6 @@ function initGsap() {
 
     gsap.registerPlugin(ScrollTrigger);
 
-    gsap.to(".intro", {
-        scale: 1.03,
-        duration: 14,
-        ease: "none",
-    });
-
-    gsap.to(".cover-image", {
-        scale: 1.015,
-        yPercent: -1.4,
-        duration: 14,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-    });
-
     gsap.to(".gold-flourish", {
         width: "min(420px, 80vw)",
         repeat: -1,
@@ -311,16 +269,16 @@ function initGsap() {
             ease: "power3.out",
             scrollTrigger: {
                 trigger: el,
-                start: "top 83%",
+                start: "top 85%",
                 once: true,
             },
         });
     });
 
     gsap.to(".mandala-hero", {
-        y: 55,
+        y: 40,
         scrollTrigger: {
-            trigger: ".hero",
+            trigger: ".welcome",
             start: "top top",
             end: "bottom top",
             scrub: 0.8,
@@ -329,6 +287,7 @@ function initGsap() {
 }
 
 window.addEventListener("load", () => {
+    initLanguage();
     initMusicPreference();
 
     if (bgMantra) {
@@ -337,14 +296,13 @@ window.addEventListener("load", () => {
         setMusicUnavailable();
     }
 
-    setTimeout(() => preloader.classList.add("hidden"), 900);
-    createLanterns(lanternsIntro, 11);
-    createFallingElements(petalsGlobal, "petal", 50);
-    createFallingElements(particles, "spark", 48);
+    if (preloader) {
+        setTimeout(() => preloader.classList.add("hidden"), 700);
+    }
+
+    createFallingElements(petalsGlobal, "petal", 40);
     updatePetalFallDistance();
     initGsap();
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
 });
 
 window.addEventListener("resize", updatePetalFallDistance);
@@ -352,78 +310,14 @@ window.addEventListener("resize", updatePetalFallDistance);
 on(enterBtn, "click", enterInvitation);
 on(enterBtn, "click", startMusicOnce);
 
+on(langToggle, "click", toggleLanguage);
+
 on(musicToggle, "click", () => {
     if (!bgMantra || musicToggle.disabled) return;
     const nextMuted = !bgMantra.muted;
     setMuted(nextMuted, true);
     if (!nextMuted && (!hasStartedMusic || bgMantra.paused)) {
         startMusicOnce();
-    }
-});
-
-on(copyHash, "click", async () => {
-    const copied = await copyTextSafe(hashText.textContent.trim());
-    showToast(copied ? "Copied" : "Copy failed");
-});
-
-on(rsvpForm, "submit", async (event) => {
-    event.preventDefault();
-
-    if (!rsvpForm.checkValidity()) {
-        rsvpForm.reportValidity();
-        return;
-    }
-    const submitBtn = rsvpForm.querySelector('button[type="submit"]');
-    const formData = new FormData(rsvpForm);
-    const attendValue = String(formData.get("attend") || "");
-    setRsvpModalContent(attendValue);
-    const encodedData = new URLSearchParams(formData).toString();
-
-    try {
-        if (submitBtn) submitBtn.disabled = true;
-        const response = await fetch("/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: encodedData,
-        });
-
-        if (!response.ok) {
-            throw new Error("Netlify form submission failed");
-        }
-
-        if (thanksModal) {
-            thanksModal.classList.add("show");
-            thanksModal.setAttribute("aria-hidden", "false");
-        } else {
-            showToast("RSVP sent");
-        }
-        rsvpForm.reset();
-    } catch (error) {
-        try {
-            HTMLFormElement.prototype.submit.call(rsvpForm);
-            showToast("RSVP sent");
-            rsvpForm.reset();
-        } catch (submitError) {
-            showToast("RSVP failed");
-        }
-    } finally {
-        if (submitBtn) submitBtn.disabled = false;
-    }
-});
-
-on(closeModal, "click", () => {
-    if (!thanksModal) return;
-    thanksModal.classList.remove("show");
-    thanksModal.setAttribute("aria-hidden", "true");
-});
-
-on(thanksModal, "click", (event) => {
-    if (!thanksModal) return;
-    if (event.target === thanksModal) {
-        thanksModal.classList.remove("show");
-        thanksModal.setAttribute("aria-hidden", "true");
     }
 });
 
