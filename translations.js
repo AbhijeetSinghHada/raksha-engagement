@@ -45,9 +45,9 @@ const TRANSLATIONS = {
             event1Title: "दस्तूर रस्म",
             event1Time: "दोपहर १:०० बजे से",
             event2Title: "मुद्रिका बंधन",
-            event2Time: "दोपहर १:३० बजे से",
+            event2Time: "दोपहर ३:०० बजे से",
             event3Title: "राजसी प्रीतिभोज",
-            event3Time: "दोपहर ३:०० बजे से",
+            event3Time: "दोपहर ६:०० बजे से",
         },
         venue: {
             title: "स्थान",
@@ -110,11 +110,11 @@ const TRANSLATIONS = {
         timeline: {
             title: "Rites & Programme",
             event1Title: "Dastur Ceremony",
-            event1Time: "1:00 PM",
+            event1Time: "01:00 PM",
             event2Title: "Ring Ceremony",
-            event2Time: "01:30 PM",
+            event2Time: "03:00 PM",
             event3Title: "Rajsi Preeti Bhoj",
-            event3Time: "03:00 PM Onwards",
+            event3Time: "06:00 PM Onwards",
         },
         venue: {
             title: "Venue",
