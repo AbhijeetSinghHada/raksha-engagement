@@ -4,7 +4,7 @@ const TRANSLATIONS = {
             loading: "शुभ मांगलिक उत्सव की तैयारी हो रही है...",
             title: "शुभ मांगलिक उत्सव आमंत्रण",
             subtitle:
-                "कुंवर पृथ्वी राज सिंह जी एवं सुश्री रक्षा कंवर के सगाई महोत्सव में आपका स्वागत है",
+                "कुंवर पृथ्वी राज सिंह जी राठौड़ एवं सुश्री रक्षा कंवर के सगाई महोत्सव में आपका स्वागत है",
             openBtn: "आमंत्रण पत्र खोलें ✨",
         },
         music: {
@@ -28,9 +28,9 @@ const TRANSLATIONS = {
             brideName: "सुश्री रक्षा कंवर",
             brideFamily:
                 "सुपुत्री — महाराजा सा गोपाल सिंह जी हाड़ा\nठिकाना प्रतापगढ़, बूंदी",
-            groomName: "कुंवर पृथ्वी राज सिंह",
+            groomName: "कुंवर पृथ्वी राज सिंह राठौड़",
             groomFamily:
-                "सुपुत्र — ठाकुर सा नरेन्द्र सिंह जी राठौड़\nठिकाना जैतपोल सांवर, अजमेर",
+                "सुपुत्र — ठाकुर सा नरेन्द्र सिंह जी राठौड़\nठिकाना जैतपोल सावर, अजमेर",
             hadaCrest: "हाडा परिवार",
             rathoreCrest: "राठौड़ परिवार",
         },
@@ -43,13 +43,11 @@ const TRANSLATIONS = {
         timeline: {
             title: "रीत-रिवाज एवं कार्यक्रम",
             event1Title: "दस्तूर रस्म",
-            event1Time: "सुबह ११:०० बजे",
+            event1Time: "दोपहर १:०० बजे से",
             event2Title: "मुद्रिका बंधन",
-            event2Time: "दोपहर १:०० बजे",
-            event3Title: "पहरावणी",
-            event3Time: "दोपहर १:३० बजे",
-            event4Title: "राजसी प्रीतिभोज",
-            event4Time: "दोपहर ३:०० बजे से",
+            event2Time: "दोपहर १:३० बजे से",
+            event3Title: "राजसी प्रीतिभोज",
+            event3Time: "दोपहर ३:०० बजे से",
         },
         venue: {
             title: "स्थान",
@@ -97,9 +95,9 @@ const TRANSLATIONS = {
             brideName: "Sushri Raksha Kanwar",
             brideFamily:
                 "Daughter — Maharaja Sa Gopal Singh Ji Hada\nThikana Pratapgarh, Bundi",
-            groomName: "Kunwar Prithvi Raj Singh",
+            groomName: "Kunwar Prithvi Raj Singh Rathore",
             groomFamily:
-                "Son — Thakur Sa Narendra Singh Ji Rathore\nThikana Jaitpol Saanwar, Ajmer",
+                "Son — Thakur Sa Narendra Singh Ji Rathore\nThikana Jetpol Sawar, Ajmer",
             hadaCrest: "The Hada Family",
             rathoreCrest: "The Rathore Family",
         },
@@ -112,13 +110,11 @@ const TRANSLATIONS = {
         timeline: {
             title: "Rites & Programme",
             event1Title: "Dastur Ceremony",
-            event1Time: "11:00 AM",
+            event1Time: "1:00 PM",
             event2Title: "Ring Ceremony",
-            event2Time: "01:00 PM",
-            event3Title: "Pehravani",
-            event3Time: "01:30 PM",
-            event4Title: "Rajsi Preeti Bhoj",
-            event4Time: "03:00 PM Onwards",
+            event2Time: "01:30 PM",
+            event3Title: "Rajsi Preeti Bhoj",
+            event3Time: "03:00 PM Onwards",
         },
         venue: {
             title: "Venue",
